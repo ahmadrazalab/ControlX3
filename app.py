@@ -107,22 +107,36 @@ s3_clients = {
 }
 
 def list_objects_in_folder(bucket_name, prefix, continuation_token=None):
-    """List objects (folders and files) in the specified prefix with pagination."""
+    """List objects (folders and files) in the specified prefix with sorting by latest modified files."""
     s3_client = s3_clients[bucket_name]
+    
+    # Ensure prefix is correctly formatted (Empty string means root)
     params = {"Bucket": bucket_name, "Prefix": prefix, "Delimiter": "/"}
+    
     if continuation_token:
         params["ContinuationToken"] = continuation_token
 
     response = s3_client.list_objects_v2(**params)
 
+    # Extract folders
     folders = [
-        {"name": obj.get("Prefix").split("/")[-2], "path": obj.get("Prefix")}
+        {"name": obj.get("Prefix").rstrip("/").split("/")[-1], "path": obj.get("Prefix")}
         for obj in response.get("CommonPrefixes", [])
-    ]
-    files = [
-        {"name": obj.get("Key").split("/")[-1], "path": obj.get("Key")}
-        for obj in response.get("Contents", [])
-    ]
+    ] if "CommonPrefixes" in response else []
+
+    # Extract and sort files by LastModified timestamp (latest first)
+    files = sorted(
+        [
+            {
+                "name": obj.get("Key").split("/")[-1],
+                "path": obj.get("Key"),
+                "last_modified": obj.get("LastModified").isoformat()  # Store timestamp for reference
+            }
+            for obj in response.get("Contents", []) if obj.get("Key") != prefix
+        ],
+        key=lambda x: x["last_modified"],  # Sort by LastModified timestamp
+        reverse=True  # Latest files first
+    ) if "Contents" in response else []
 
     next_continuation_token = response.get("NextContinuationToken")
 
@@ -131,6 +145,8 @@ def list_objects_in_folder(bucket_name, prefix, continuation_token=None):
         "files": files,
         "next_continuation_token": next_continuation_token,
     }
+
+
 
 @app.route("/")
 def index():
@@ -147,21 +163,24 @@ def list_buckets():
 
 @app.route("/list-files", methods=["GET"])
 def list_files():
-    """List root folders in the selected S3 bucket."""
+    """List root folders and files in the selected S3 bucket."""
     try:
         bucket_name = request.args.get("bucket")
         if bucket_name not in s3_clients:
             return "Invalid bucket name", 400
 
-        response = list_objects_in_folder(bucket_name, "")
+        response = list_objects_in_folder(bucket_name, "")  # Root path
         return jsonify(
             {
                 "folders": response["folders"],
+                "files": response["files"],
                 "next_continuation_token": response["next_continuation_token"],
             }
         )
     except Exception as e:
         return str(e), 500
+
+
 
 @app.route("/list-files-in-folder", methods=["GET"])
 def list_files_in_folder():
@@ -254,4 +273,4 @@ def upload():
         return str(e), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
