@@ -37,7 +37,24 @@ This tool is designed to provide a straightforward and efficient way to interact
    cd AWS-S3-Explorer
    ```
 
-3. **Install Dependencies**
+3. **Set Up a Virtual Environment**
+
+   ```sh
+   python3 -m venv venv
+   ```
+
+4. **Activate the Virtual Environment**
+
+   - On macOS/Linux:
+     ```sh
+     source venv/bin/activate
+     ```
+   - On Windows:
+     ```sh
+     venv\Scripts\activate
+     ```
+
+5. **Install Dependencies**
 
    ```sh
    pip install -r requirements.txt
@@ -50,6 +67,53 @@ To start the application, use the following command:
 ```sh
 python3 app.py
 ```
+
+If using the virtual environment, ensure it is activated before running the application.
+
+## Run as a Systemd Service
+
+To run this application as a system service on Linux, follow these steps:
+
+1. **Create a systemd service file**
+
+   ```sh
+   sudo nano /etc/systemd/system/aws-s3-navigator.service
+   ```
+
+2. **Add the following configuration**
+
+   ```ini
+   [Unit]
+   Description=AWS S3 Navigator Service
+   After=network.target
+
+   [Service]
+   User=ubuntu  # Change this to your Linux username
+   Group=ubuntu # Change this to your user group
+   WorkingDirectory=/path/to/AWS-S3-Explorer
+   ExecStart=/path/to/AWS-S3-Explorer/venv/bin/python3 app.py
+   Restart=always
+   Environment="PATH=/path/to/AWS-S3-Explorer/venv/bin"
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+   Replace `/path/to/AWS-S3-Explorer` with the actual directory path where the application is located.
+
+3. **Reload systemd and enable the service**
+
+   ```sh
+   sudo systemctl daemon-reload
+   sudo systemctl enable aws-s3-navigator
+   sudo systemctl start aws-s3-navigator
+   ```
+
+4. **Check service status**
+
+   ```sh
+   sudo systemctl status aws-s3-navigator
+   ```
 
 ## Configuration
 
@@ -100,3 +164,4 @@ Contributions are welcome! To contribute, please follow these steps:
 ## Acknowledgements
 
 Special thanks to all contributors and users who have helped improve this project.
+
