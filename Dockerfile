@@ -10,26 +10,11 @@ COPY . .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port your Flask app runs on (if using Flask's built-in server)
+# Expose the port your Flask app runs on
 EXPOSE 5000
 
-# Set environment variables (these should be set securely in CI/CD)
-ENV S3_BUCKET_1=xxxxxx \
-    S3_ACCESS_KEY_1=xxxxxx \
-    S3_SECRET_KEY_1=xxxxxx \
-    S3_REGION_1=xxxxxx \
-    S3_BUCKET_2=xxxxxx \
-    S3_ACCESS_KEY_2=xxxxxx \
-    S3_SECRET_KEY_2=xxxxxx \
-    S3_REGION_2=xxxxxx \
-    S3_BUCKET_3=xxxxxx \
-    S3_ACCESS_KEY_3=xxxxxx \
-    S3_SECRET_KEY_3=xxxxxx \
-    S3_REGION_3=xxxxxx \
-    S3_BUCKET_4=xxxxxx \
-    S3_ACCESS_KEY_4=xxxxxx \
-    S3_SECRET_KEY_4=xxxxxx \
-    S3_REGION_4=xxxxxx
-
-# Command to run the application
+# Use environment variables for credentials (to be passed at runtime)
 CMD ["python", "app.py"]
+
+
+# docker run --env-file .env -p 5000:5000 your-dockerhub-username/s3-explorer

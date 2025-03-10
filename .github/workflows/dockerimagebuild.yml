@@ -1,29 +1,31 @@
-name: Build and Push Docker Image
+name: ControlX3 Build and Push Docker Images
 
 on:
   push:
-    branches:
-      - main  # Adjust to your default branch
-  workflow_dispatch:
+    tags:
+      - "v*"  # Trigger only on tag creation
 
 jobs:
   build-and-push:
+    name: Backend Images
     runs-on: ubuntu-latest
 
+    env:
+      REGISTRY: docker.io   # Docker Hub registry
+      BACKEND_IMAGE_NAME: noscopev6/ControlX3    # Image name for the backend
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Login to Docker Hub
+      - name: Log in to Container Registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build Docker Image
+      - name: Backend Images
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/s3-explorer:latest .
-
-      - name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/s3-explorer:latest
+          docker build -t ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ github.ref_name }} .
+          docker push ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ github.ref_name }}
