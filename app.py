@@ -143,7 +143,7 @@ def list_objects_in_folder(bucket_name, prefix, continuation_token=None):
             }
             for obj in response.get("Contents", []) if obj.get("Key") != prefix
         ],
-        key=lambda x: x["last_modified"],  # Sort by LastModified timestamp
+        key=lambda x: x["last_modified"],  
         reverse=True  # Latest files first
     ) if "Contents" in response else []
 
