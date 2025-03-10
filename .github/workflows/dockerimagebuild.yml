@@ -12,7 +12,7 @@ jobs:
 
     env:
       REGISTRY: docker.io   # Docker Hub registry
-      BACKEND_IMAGE_NAME: noscopev6/ControlX3    # Image name for the backend
+      BACKEND_IMAGE_NAME: noscopev6/controlx3    # Image name for the backend
 
     steps:
       - name: Checkout Code
