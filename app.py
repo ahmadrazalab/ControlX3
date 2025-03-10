@@ -22,12 +22,12 @@ load_dotenv()
 def check_user(username, password):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("SELECT password FROM users WHERE username = ?", (username,))
+    c.execute("SELECT password,id FROM users WHERE username = ?", (username,))
     result = c.fetchone()
     conn.close()
     if result and bcrypt.checkpw(password.encode(), result[0].encode()):
-        return True
-    return False
+        return {"status":True,"user_id":result[1]}
+    return {"status":False,"user_id":None}
 
 def add_user(username, password):
     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
@@ -42,8 +42,10 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        if check_user(username, password):
+        res=check_user(username, password)
+        if res["status"]:
             session["logged_in"] = True
+            session["user_id"] = res["user_id"]
             return redirect(url_for("index"))
         else:
             return "Invalid credentials", 401
@@ -74,24 +76,31 @@ buckets = [
         "access_key": os.getenv("S3_ACCESS_KEY_1"),
         "secret_key": os.getenv("S3_SECRET_KEY_1"),
         "region": os.getenv("S3_REGION_1"),
+        "by_admin_only": os.getenv("S3_BUCKET_1_BY_ADMIN_ONLY"),
     },
     {
         "name": os.getenv("S3_BUCKET_2"),
         "access_key": os.getenv("S3_ACCESS_KEY_2"),
         "secret_key": os.getenv("S3_SECRET_KEY_2"),
         "region": os.getenv("S3_REGION_2"),
+        "by_admin_only": os.getenv("S3_BUCKET_2_BY_ADMIN_ONLY"),
+
     },
     {
         "name": os.getenv("S3_BUCKET_3"),
         "access_key": os.getenv("S3_ACCESS_KEY_3"),
         "secret_key": os.getenv("S3_SECRET_KEY_3"),
         "region": os.getenv("S3_REGION_3"),
+        "by_admin_only": os.getenv("S3_BUCKET_3_BY_ADMIN_ONLY"),
+
+
     },
     {
         "name": os.getenv("S3_BUCKET_4"),
         "access_key": os.getenv("S3_ACCESS_KEY_4"),
         "secret_key": os.getenv("S3_SECRET_KEY_4"),
         "region": os.getenv("S3_REGION_4"),
+        "by_admin_only": os.getenv("S3_BUCKET_4_BY_ADMIN_ONLY"),
     },
 ]
 
@@ -156,7 +165,10 @@ def index():
 def list_buckets():
     """List all available S3 buckets."""
     try:
-        bucket_names = [bucket["name"] for bucket in buckets]
+        user_id  = session.get("user_id", None) 
+        print(user_id)
+
+        bucket_names = [bucket["name"] for bucket in buckets if user_id!=1 and bucket["by_admin_only"] != "false" ]
         return jsonify({"buckets": bucket_names})
     except Exception as e:
         return str(e), 500
