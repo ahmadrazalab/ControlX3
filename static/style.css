@@ -1,0 +1,295 @@
+* {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    transition: all .3s;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+}
+
+header {
+    width: 98%;
+
+    padding: 10px;
+    background: #1A3636;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-container input {
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+    width: 200px;
+}
+
+.search-container i {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.breadcrumbs {
+    margin: 10px 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumbs li {
+    margin-right: 5px;
+}
+
+.breadcrumbs li a {
+    text-decoration: none;
+    color: #0078D4;
+}
+
+.breadcrumbs li::after {
+    content: '/';
+    margin-left: 5px;
+}
+
+.breadcrumbs li:last-child::after {
+    content: '';
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    width: 200px;
+    background: #f3f3f3;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.sidebar ul li:hover {
+    background: #ddd;
+}
+
+.content {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.folder,
+.file {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: #EEEEEE;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.folder i,
+.file i {
+    font-size: 100px;
+    color: #002847;
+}
+
+.folder h1,
+.file h1 {
+    font-size: 14px;
+    margin: 5px 0;
+    word-wrap: wrap !important;
+}
+
+.folder:hover,
+.file:hover {
+    background: #e1e1e1;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+.folder-content {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s, max-height 0.3s;
+    width: 98%;
+}
+
+.folder.open {
+    transform: scale(1.05);
+}
+
+.folder.open .folder-content {
+    opacity: 1;
+    max-height: 300px;
+    /* Adjust based on content height */
+}
+
+.details-pane {
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background: #f9f9f9;
+    display: none;
+}
+
+.details-pane.open {
+    display: block;
+}
+
+.download-button {
+    background: #0078D4;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.file-table th, .file-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.file-table th {
+    background-color: #f4f4f4;
+}
+
+.file-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.file-table i {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.file-table button {
+    padding: 5px 10px;
+    border: none;
+    background: #2dba4e;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.file-table button:hover {
+    background: #248a3e;
+}
+
+
+/* Make the content container responsive */
+#content {
+    width: 100%;
+    overflow-x: auto;
+    /* Enable horizontal scroll if needed */
+}
+
+/* Style the file-table */
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    /* Prevents table from getting too small */
+    background: #fff;
+}
+
+.file-table th, .file-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+    /* Prevents text wrapping */
+}
+
+.file-table th {
+    background-color: #2b3137;
+    color: white;
+}
+
+.file-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.file-table i {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Make buttons look better */
+.file-table button {
+    padding: 6px 12px;
+    border: none;
+    background: #2dba4e;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.file-table button:hover {
+    background: #248a3e;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .file-table th, .file-table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .file-table {
+        min-width: 100%;
+    }
+
+    #content {
+        overflow-x: auto;
+        /* Enable scrolling for small screens */
+    }
+}

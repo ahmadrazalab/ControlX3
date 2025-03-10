@@ -1,414 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AWS S3 Navigator</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="./bootstrap.css" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Roboto', sans-serif;
-            font-weight: 400;
-            transition: all .3s;
-        }
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link href="./static/bootstrap.css" rel="stylesheet" />
+    <link href="./static/style.css" rel="stylesheet" />
+    <script src="./static/script.js"></script>
+  </head>
 
-        body {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            
-        }
-
-        header {
-            width: 98%;
-            
-            padding: 10px;
-            background: #1A3636;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-container input {
-            padding: 5px;
-            border: none;
-            border-radius: 4px;
-            width: 200px;
-        }
-
-        .search-container i {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
-        .breadcrumbs {
-            margin: 10px 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .breadcrumbs li {
-            margin-right: 5px;
-        }
-
-        .breadcrumbs li a {
-            text-decoration: none;
-            color: #0078D4;
-        }
-
-        .breadcrumbs li::after {
-            content: '/';
-            margin-left: 5px;
-        }
-
-        .breadcrumbs li:last-child::after {
-            content: '';
-        }
-
-        .main-container {
-            display: flex;
-            flex: 1;
-        }
-
-        .sidebar {
-            width: 200px;
-            background: #f3f3f3;
-            border-right: 1px solid #ccc;
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .sidebar ul li {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .sidebar ul li:hover {
-            background: #ddd;
-        }
-
-        .content {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .folder,
-        .file {
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            background: #EEEEEE;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-            cursor: pointer;
-            transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .folder i,
-        .file i {
-            font-size: 100px;
-            color: #002847;
-        }
-
-        .folder h1,
-        .file h1 {
-            font-size: 14px;
-            margin: 5px 0;
-            word-wrap: wrap !important;
-        }
-
-        .folder:hover,
-        .file:hover {
-            background: #e1e1e1;
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-        }
-
-        .folder-content {
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: opacity 0.3s, max-height 0.3s;
-            width: 98%;
-        }
-
-        .folder.open {
-            transform: scale(1.05);
-        }
-
-        .folder.open .folder-content {
-            opacity: 1;
-            max-height: 300px;
-            /* Adjust based on content height */
-        }
-
-        .details-pane {
-            padding: 10px;
-            border-top: 1px solid #ccc;
-            background: #f9f9f9;
-            display: none;
-        }
-
-        .details-pane.open {
-            display: block;
-        }
-
-        .download-button {
-            background: #0078D4;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-
-
-<body>
+  <body>
     <header>
-        <h1>AWS S3 Navigator</h1>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search...">
-            <i class="material-icons" onclick="searchData()">search</i>
-            {% if session.get("logged_in") %}
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-            {% endif %}
-        </div>
-        <div class="bucket-container">
-            <label for="bucket-select">Select Bucket:</label>
-            <select id="bucket-select" onchange="fetchRootFolders()">
-                <option value="" disabled selected>Select a bucket</option>
-            </select>
-        </div>
-        <div class="upload-container">
-            <label for="file-input">Upload File:</label>
-            <input type="file" id="file-input">
-            <button onclick="uploadFile()">Upload</button>
-        </div>
+      <h1>AWS S3 Navigator</h1>
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search..." />
+        <i class="material-icons" onclick="searchData()">search</i>
+
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+      <div class="bucket-container">
+        <label for="bucket-select">Select Bucket:</label>
+        <select id="bucket-select" onchange="fetchRootFolders()">
+          <option value="" disabled selected>Select a bucket</option>
+        </select>
+      </div>
+      <div class="upload-container">
+        <label for="file-input">Upload File:</label>
+        <input type="file" id="file-input" />
+        <button onclick="uploadFile()">Upload</button>
+      </div>
     </header>
 
     <ul class="breadcrumbs" id="breadcrumbs"></ul>
 
     <div class="main-container">
-        <div class="sidebar">
-            <ul id="folder-list"></ul>
-        </div>
-        <div class="content" id="content"></div>
+      <div class="sidebar">
+        <ul id="folder-list"></ul>
+      </div>
+      <div class="content" id="content"></div>
     </div>
 
     <div class="details-pane" id="details-pane"></div>
-
-    <script>
-        let currentPath = '';
-        let allFolders = [];
-        let allFiles = [];
-
-        async function fetchBuckets() {
-            const response = await fetch('/list-buckets');
-            const data = await response.json();
-            const bucketSelect = document.getElementById('bucket-select');
-            bucketSelect.innerHTML = '<option value="" disabled selected>Select a bucket</option>';
-
-            data.buckets.forEach(bucket => {
-                const option = document.createElement('option');
-                option.value = bucket;
-                option.textContent = bucket;
-                bucketSelect.appendChild(option);
-            });
-        }
-
-        async function fetchRootFolders() {
-            const bucket = document.getElementById('bucket-select').value;
-            if (!bucket) {
-                return;
-            }
-            const response = await fetch(`/list-files?bucket=${bucket}`);
-            const data = await response.json();
-            allFolders = data.folders || [];
-            allFiles = data.files || [];
-
-            updateContent(allFolders, allFiles);
-            updateBreadcrumbs();
-        }
-
-        async function fetchFilesInFolder(path) {
-            const bucket = document.getElementById('bucket-select').value;
-            if (!bucket) {
-                return;
-            }
-            const response = await fetch(`/list-files-in-folder?bucket=${bucket}&path=${encodeURIComponent(path)}`);
-            const data = await response.json();
-            allFolders = data.folders || [];
-            allFiles = data.files || [];
-
-            updateContent(allFolders, allFiles);
-            currentPath = path;
-            updateBreadcrumbs();
-        }
-
-        function updateContent(folders, files) {
-            const content = document.getElementById('content');
-            const detailsPane = document.getElementById('details-pane');
-
-            content.innerHTML = '';
-            detailsPane.classList.remove('open');
-
-            folders.forEach(folder => {
-                const folderItem = document.createElement('div');
-                folderItem.classList.add('folder');
-                folderItem.innerHTML = `
-                    <i class="material-icons">folder</i>
-                    <h1>${folder.name}</h1>
-                    <div class="folder-content"></div>
-                `;
-                folderItem.onclick = () => {
-                    folderItem.classList.toggle('open');
-                    if (folderItem.classList.contains('open')) {
-                        fetchFilesInFolder(folder.path);
-                    }
-                };
-                content.appendChild(folderItem);
-            });
-
-            files.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.classList.add('file');
-                fileItem.innerHTML = `
-                    <i class="material-icons">insert_drive_file</i>
-                    <h1>${file.name}</h1>
-                    <button class="download-button" onclick="downloadItem('${file.path}', 'file')">Download</button>
-                `;
-                fileItem.ondblclick = async () => {
-                    const encodedFilename = encodeURIComponent(file.path);
-                    const bucket = document.getElementById('bucket-select').value;
-                    const urlResponse = await fetch(`/generate-url/${encodedFilename}?bucket=${bucket}`);
-                    const urlData = await urlResponse.json();
-                    window.open(urlData.url, "_blank");
-                };
-                content.appendChild(fileItem);
-            });
-        }
-
-        function searchData() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-
-            if (allFolders && allFiles) {
-                const filteredFolders = allFolders.filter(folder => folder.name.toLowerCase().includes(query));
-                const filteredFiles = allFiles.filter(file => file.name.toLowerCase().includes(query));
-                updateContent(filteredFolders, filteredFiles);
-            }
-        }
-
-        function updateBreadcrumbs() {
-            const breadcrumbs = document.getElementById('breadcrumbs');
-            const pathParts = currentPath.split('/').filter(part => part.length > 0);
-            breadcrumbs.innerHTML = '<li><a href="#" onclick="fetchRootFolders()">Home</a></li>';
-
-            let path = '';
-            pathParts.forEach((part, index) => {
-                path += `/${part}`;
-                breadcrumbs.innerHTML += `
-                    <li><a href="#" onclick="fetchFilesInFolder('${path}')">${part}</a></li>
-                `;
-            });
-        }
-
-        async function downloadItem(path, type) {
-            const bucket = document.getElementById('bucket-select').value;
-            if (!bucket) {
-                return;
-            }
-            const response = await fetch(`/download?bucket=${bucket}&path=${encodeURIComponent(path)}&type=${type}`);
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = type === 'folder' ? `${path.split('/').pop()}.zip` : path.split('/').pop();
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url);
-            } else {
-                alert('Failed to download item');
-            }
-        }
-
-        async function uploadFile() {
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
-            const bucket = document.getElementById('bucket-select').value;
-
-            if (!file || !bucket) {
-                alert('Please select a file and bucket.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('bucket', bucket);
-            formData.append('path', currentPath);
-
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    alert('File uploaded successfully');
-                    fetchFilesInFolder(currentPath);
-                } else {
-                    alert('Failed to upload file');
-                }
-            } catch (error) {
-                alert('Error uploading file: ' + error.message);
-            }
-        }
-
-        // Initial fetch of buckets
-        fetchBuckets();
-    </script>
-</body>
-
-
-
-
+  </body>
 </html>
