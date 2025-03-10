@@ -1,7 +1,7 @@
 import boto3
 import io
 import zipfile
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, render_template
 from dotenv import load_dotenv
 import os
 import sqlite3
@@ -37,25 +37,40 @@ def add_user(username, password):
     conn.commit()
     conn.close()
 
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         username = request.form["username"]
+#         password = request.form["password"]
+#         res=check_user(username, password)
+#         if res["status"]:
+#             session["logged_in"] = True
+#             session["user_id"] = res["user_id"]
+#             return redirect(url_for("index"))
+#         else:
+#             return "Invalid credentials", 401
+#     return render_template_string('''
+#         <form method="post">
+#             Username: <input type="text" name="username"><br>
+#             Password: <input type="password" name="password"><br>
+#             <input type="submit" value="Login">
+#         </form>
+#     ''')
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        res=check_user(username, password)
+        res = check_user(username, password)
         if res["status"]:
             session["logged_in"] = True
             session["user_id"] = res["user_id"]
             return redirect(url_for("index"))
         else:
-            return "Invalid credentials", 401
-    return render_template_string('''
-        <form method="post">
-            Username: <input type="text" name="username"><br>
-            Password: <input type="password" name="password"><br>
-            <input type="submit" value="Login">
-        </form>
-    ''')
+            return render_template("login.html", error="Invalid credentials")
+
+    return render_template("login.html")
 
 @app.route("/logout")
 def logout():
