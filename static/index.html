@@ -3,23 +3,116 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AWS S3 Navigator</title>
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
+    <title>ControlX3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link href="./static/bootstrap.css" rel="stylesheet" />
     <link href="./static/style.css" rel="stylesheet" />
     <script src="./static/script.js"></script>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background: url('./static/bg-image.jpg') no-repeat center center/cover;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: rgba(106, 107, 107, 0.9);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+      h1::before {
+        content: '\e30d'; /* Material Icons cloud_upload */
+        font-family: 'Material Icons';
+        margin-right: 10px;
+      }
+      .search-container {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .search-container input {
+        border: none;
+        outline: none;
+        padding: 0.5rem;
+      }
+      .search-container i {
+        color: #747679;
+        cursor: pointer;
+      }
+      .bucket-container, .upload-container {
+        margin-left: 20px;
+      }
+      select, input[type="file"], button {
+        padding: 0.7rem;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      button:hover {
+        background: #007bff;
+        color: white;
+      }
+      .main-container {
+        display: flex;
+        height: calc(100vh - 80px);
+        gap: 15px;
+        padding: 1rem;
+      }
+      .sidebar {
+        width: 250px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+      .content {
+        flex-grow: 1;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .details-pane {
+        width: 300px;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+      a {
+        color: rgb(8, 8, 8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+      a:hover {
+        color: #000000;
+      }
+    </style>
   </head>
-
   <body>
     <header>
-      <h1>AWS S3 Navigator</h1>
+      <h1>ControlX3</h1>
       <div class="search-container">
         <input type="text" id="search-input" placeholder="Search..." />
         <i class="material-icons" onclick="searchData()">search</i>
-
         <a href="/logout">Logout</a>
       </div>
       <div class="bucket-container">
