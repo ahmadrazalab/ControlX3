@@ -12,7 +12,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f8f9fa;
+            background: url('./static/background1.png') no-repeat center center/cover;
+            position: relative;
         }
         .login-container {
             background: white;
@@ -21,15 +22,26 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            z-index: 10;
         }
         .btn-primary {
             width: 100%;
+        }
+        .guidance {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2 class="text-center">Control X3</h2>
+        <h2 class="text-center"><strong>Control X3</strong></h2>
         <form method="post">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -41,6 +53,18 @@
             </div>
             <button type="submit" class="btn btn-primary">Connect</button>
         </form>
+    </div>
+    
+    <div class="guidance">
+        <h4>Welcome to ControlX3</h4>
+        <p>This is a secure file management system for your S3 buckets. Login to manage, upload, and explore your storage effortlessly.</p>
+        <ul>
+            <li>Multi S3 Support</li>
+            <li>Admin and Dev User Support</li>
+            <li>Fast and responsive UI</li>
+            <li>Preview with Pre-Signed URL</li>
+            <li>Easy file Uploads/Download and Management</li>
+        </ul>
     </div>
 </body>
 </html>

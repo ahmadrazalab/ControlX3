@@ -183,7 +183,7 @@ def list_buckets():
         user_id  = session.get("user_id", None) 
         print(user_id)
 
-        bucket_names = [bucket["name"] for bucket in buckets if (user_id!=1 and bucket["by_admin_only"] != "false") or (user_id==1 and bucket["by_admin_only"] in ["false", "true"]) ]
+        bucket_names = [bucket["name"] for bucket in buckets if (user_id!=1 and bucket["by_admin_only"] != "true") or (user_id==1 and bucket["by_admin_only"] in ["false", "true"]) ]
         return jsonify({"buckets": bucket_names})
     except Exception as e:
         return str(e), 500
