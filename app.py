@@ -7,7 +7,7 @@ import os
 import sqlite3
 import bcrypt
 from flask import Flask, jsonify, request, send_file, session, redirect, url_for, render_template_string
-
+from botocore.client import Config
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')  # Set a secret key for session management
 
@@ -119,6 +119,14 @@ buckets = [
     },
 ]
 
+r2Buckets=[{
+        "name": os.getenv("R2_BUCKET_NAME_1"),
+        "endpoint_url": os.getenv("R2_ENDPOINT_URL_1"),
+        "aws_access_key_id": os.getenv("R2_ACCESS_KEY_ID_1"),
+        "aws_secret_access_key": os.getenv("R2_SECRET_ACCESS_KEY_1"),
+        "by_admin_only": os.getenv("R2_BUCKET_1_BY_ADMIN_ONLY")
+}]
+
 # Initialize S3 clients for each bucket
 s3_clients = {
     bucket["name"]: boto3.client(
@@ -129,11 +137,19 @@ s3_clients = {
     )
     for bucket in buckets
 }
+for r2bucket in r2Buckets:
+    s3_clients[r2bucket["name"]] = boto3.client(
+    "s3",
+    endpoint_url=os.getenv("R2_ENDPOINT_URL_1"),
+    aws_access_key_id=os.getenv("R2_ACCESS_KEY_ID_1"),
+    aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY_1'),
+    config=Config(signature_version="s3v4"),
+    )
+
 
 def list_objects_in_folder(bucket_name, prefix, continuation_token=None):
     """List objects (folders and files) in the specified prefix with sorting by latest modified files."""
-    s3_client = s3_clients[bucket_name]
-    
+    s3_client = s3_clients[bucket_name]    
     # Ensure prefix is correctly formatted (Empty string means root)
     params = {"Bucket": bucket_name, "Prefix": prefix, "Delimiter": "/"}
     
@@ -184,6 +200,10 @@ def list_buckets():
         print(user_id)
 
         bucket_names = [bucket["name"] for bucket in buckets if (user_id!=1 and bucket["by_admin_only"] != "true") or (user_id==1 and bucket["by_admin_only"] in ["false", "true"]) ]
+        
+        r2_bucket_names = [bucket["name"] for bucket in r2Buckets if (user_id!=1 and bucket["by_admin_only"] != "true") or (user_id==1 and bucket["by_admin_only"] in ["false", "true"]) ]
+        bucket_names.extend(r2_bucket_names)
+
         return jsonify({"buckets": bucket_names})
     except Exception as e:
         return str(e), 500
@@ -300,4 +320,4 @@ def upload():
         return str(e), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=9000, debug=True)
