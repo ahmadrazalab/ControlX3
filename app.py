@@ -124,7 +124,8 @@ r2Buckets=[{
         "endpoint_url": os.getenv("R2_ENDPOINT_URL_1"),
         "aws_access_key_id": os.getenv("R2_ACCESS_KEY_ID_1"),
         "aws_secret_access_key": os.getenv("R2_SECRET_ACCESS_KEY_1"),
-        "by_admin_only": os.getenv("R2_BUCKET_1_BY_ADMIN_ONLY")
+        "by_admin_only": os.getenv("R2_BUCKET_1_BY_ADMIN_ONLY"),
+        "token": os.getenv("R2_ACCESS_TOKEN_1")
 }]
 
 # Initialize S3 clients for each bucket
@@ -140,12 +141,17 @@ s3_clients = {
 for r2bucket in r2Buckets:
     s3_clients[r2bucket["name"]] = boto3.client(
     "s3",
-    endpoint_url=os.getenv("R2_ENDPOINT_URL_1"),
-    aws_access_key_id=os.getenv("R2_ACCESS_KEY_ID_1"),
+    endpoint_url=os.getenv('R2_ENDPOINT_URL_1'),
+    aws_access_key_id=os.getenv('R2_ACCESS_KEY_ID_1'),
     aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY_1'),
-    config=Config(signature_version="s3v4"),
+    config=Config(signature_version="s3v4"),  
     )
-
+def get_token_by_name(bucket_name):
+    """Return the token for a given R2 bucket name"""
+    for bucket in r2Buckets:
+        if bucket["name"] == bucket_name:
+            return bucket["token"]
+    return None  
 
 def list_objects_in_folder(bucket_name, prefix, continuation_token=None):
     """List objects (folders and files) in the specified prefix with sorting by latest modified files."""
@@ -215,8 +221,13 @@ def list_files():
         bucket_name = request.args.get("bucket")
         if bucket_name not in s3_clients:
             return "Invalid bucket name", 400
+        
+        token =None
+        if bucket_name in r2Buckets:
+            token = get_token_by_name(bucket_name)
+            
 
-        response = list_objects_in_folder(bucket_name, "")  # Root path
+        response = list_objects_in_folder(bucket_name, "",token)  
         return jsonify(
             {
                 "folders": response["folders"],
