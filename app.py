@@ -126,7 +126,24 @@ r2Buckets=[{
         "aws_secret_access_key": os.getenv("R2_SECRET_ACCESS_KEY_1"),
         "by_admin_only": os.getenv("R2_BUCKET_1_BY_ADMIN_ONLY"),
         "token": os.getenv("R2_ACCESS_TOKEN_1")
-}]
+},
+{
+        "name": os.getenv("R2_BUCKET_NAME_2"),
+        "endpoint_url": os.getenv("R2_ENDPOINT_URL_2"),
+        "aws_access_key_id": os.getenv("R2_ACCESS_KEY_ID_2"),
+        "aws_secret_access_key": os.getenv("R2_SECRET_ACCESS_KEY_2"),
+        "by_admin_only": os.getenv("R2_BUCKET_2_BY_ADMIN_ONLY"),
+        "token": os.getenv("R2_ACCESS_TOKEN_2")
+},
+{
+        "name": os.getenv("R2_BUCKET_NAME_3"),
+        "endpoint_url": os.getenv("R2_ENDPOINT_URL_3"),
+        "aws_access_key_id": os.getenv("R2_ACCESS_KEY_ID_3"),
+        "aws_secret_access_key": os.getenv("R2_SECRET_ACCESS_KEY_3"),
+        "by_admin_only": os.getenv("R2_BUCKET_3_BY_ADMIN_ONLY"),
+        "token": os.getenv("R2_ACCESS_TOKEN_3")
+}
+]
 
 # Initialize S3 clients for each bucket
 s3_clients = {
@@ -331,4 +348,4 @@ def upload():
         return str(e), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=9000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
